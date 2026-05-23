@@ -29,7 +29,7 @@ if "productos_ej2" not in st.session_state:
 if "historico_ej3" not in st.session_state:
     st.session_state.historico_ej3 = []  # Lista para histórico del Ejercicio 3
 
-# 👇 ¡AQUÍ ESTÁ LO QUE FALTABA PARA EL EJERCICIO 4! 👇
+
 if "crud_inventario_ej4" not in st.session_state:
     st.session_state.crud_inventario_ej4 = {}  # Diccionario vacío para el CRUD de Empleados
 
