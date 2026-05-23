@@ -43,7 +43,7 @@ opcion = st.sidebar.selectbox(
 # ==========================================
 if opcion == "Home":
     st.title("🚀 Proyecto 1 - Aplicación Interactiva")
-    st.subheader("Especialización en Python for Analytics")
+    st.subheader("Especialización en Python potenciada por IA")
     st.markdown("**Módulo 1:** Python Fundamentals")
     
     st.markdown("---")
