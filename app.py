@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import libreria_funciones_proyecto1 as funcs
+import libreria_clases_proyecto1 as clases
 
 # ==========================================
 # IMPORTACIÓN DE LIBRERÍAS EXTERNAS (Ejercicios 3 y 4)
