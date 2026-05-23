@@ -5,16 +5,6 @@ import libreria_funciones_proyecto1 as funcs
 import libreria_clases_proyecto1 as clases
 
 # ==========================================
-# IMPORTACIÓN DE LIBRERÍAS EXTERNAS (Ejercicios 3 y 4)
-# Asegúrate de que estos archivos estén en el mismo repositorio de GitHub
-# ==========================================
-try:
-    import libreria_funciones_proyecto1 as funcs
-    import libreria_clases_proyecto1 as clases
-except ImportError:
-    st.warning("⚠️ Asegúrate de subir 'libreria_funciones_proyecto1.py' y 'libreria_clases_proyecto1.py' a tu GitHub.")
-
-# ==========================================
 # CONFIGURACIÓN DE LA PÁGINA
 # ==========================================
 st.set_page_config(page_title="Proyecto 1 - Python Fundamentals", page_icon="🚀", layout="centered")
