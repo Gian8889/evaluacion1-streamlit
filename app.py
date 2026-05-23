@@ -53,7 +53,7 @@ if opcion == "Home":
     
     # Información del estudiante (Rellena con tus datos reales)
     st.markdown("### 👤 Información del Estudiante")
-    st.write("**Nombre Completo:** Gian (Completa con tus apellidos)")
+    st.write("**Nombre Completo:** Jorge Giancarlo Huaman Calderon)
     st.write("**Instructor:** MSc. Carlos Carrillo Villavicencio")
     st.write("**Año:** 2026")
     
