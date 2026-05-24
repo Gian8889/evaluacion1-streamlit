@@ -191,11 +191,108 @@ elif opcion == "Ejercicio 2":
 # ==========================================
 # 4. EJERCICIO 3: Librería de Funciones
 # ==========================================
+# ==========================================
+# 4. EJERCICIO 3: Uso de Funciones desde Librería Externa
+# ==========================================
 elif opcion == "Ejercicio 3":
-    st.title("⚙️ Ejercicio 3: Uso de Funciones de Librería Externa")
-    st.write("Conecta aquí la función elegida de tu archivo `libreria_funciones_proyecto1.py`.")
+    st.title("📈 Ejercicio 3: Uso de Funciones desde Librería Externa")
+    st.markdown("""
+    *Descripción:* Módulo que conecta funciones de negocio alojadas en un módulo independiente (`libreria_funciones_proyecto1.py`).
+    Permite evaluar el comportamiento financiero mediante cálculos interactivos de Punto de Equilibrio y registrar el histórico de simulaciones.
+    """)
+
+    # 1. Selector de Función (Requisito Obligatorio)
+    st.markdown("### 🔍 Selector de Función")
+    funcion_seleccionada = st.selectbox(
+        "Selecciona una función de acuerdo a tu área de formación:",
+        ["calcular_punto_equilibrio (Análisis de Costos y Finanzas)"]
+    )
+
+    st.markdown("---")
+    st.markdown("### 📥 Parámetros de la Función")
+
+    # 2. Widgets para ingresar parámetros en columnas ordenadas
+    col1, col2, col3 = st.columns(3)
     
-    # TODO: Aquí pondremos los widgets que llamen a la función específica de tu librería.
+    with col1:
+        costos_fijos = st.number_input(
+            "Costos Fijos Totales ($):", 
+            min_value=0.0, 
+            value=1000.0, 
+            step=100.0, 
+            format="%.2f",
+            help="Gastos constantes mensuales (Luz, Alquiler, Sueldos fijos)."
+        )
+    with col2:
+        precio_unitario = st.number_input(
+            "Precio Unitario ($):", 
+            min_value=0.01, 
+            value=50.0, 
+            step=5.0, 
+            format="%.2f",
+            help="Precio de venta al público de una sola unidad o servicio (ej. Entrada de sauna)."
+        )
+    with col3:
+        costo_variable_unitario = st.number_input(
+            "Costo Variable Unitario ($):", 
+            min_value=0.0, 
+            value=20.0, 
+            step=5.0, 
+            format="%.2f",
+            help="Costo asociado directamente a la producción de una unidad (ej. Lavado de toallas, esencias)."
+        )
+
+    # 3. Botón para ejecutar la acción
+    if st.button("Ejecutar Función Financiera", key="btn_ej3"):
+        # Validación de negocio antes de llamar al script externo
+        if precio_unitario <= costo_variable_unitario:
+            st.error("❌ **Error crítico:** El Precio Unitario debe ser estrictamente mayor que el Costo Variable Unitario, de lo contrario el negocio jamás cubrirá sus costos.")
+        else:
+            try:
+                # 🚀 LLAMADA A TU LIBRERÍA EXTERNA (Usando el alias 'funcs')
+                resultado = funcs.calcular_punto_equilibrio(
+                    costos_fijos=costos_fijos,
+                    precio_unitario=precio_unitario,
+                    costo_variable_unitario=costo_variable_unitario
+                )
+
+                # 4. Mostrar el resultado en pantalla de manera atractiva
+                st.success("🎯 ¡Cálculo realizado con éxito!")
+                
+                res_col1, res_col2, res_col3 = st.columns(3)
+                res_col1.metric("Margen de Contribución", f"${resultado['margen_contribucion_unitario']:,.2f}")
+                res_col2.metric("Punto de Equilibrio (Unidades)", f"{resultado['punto_equilibrio_unidades']:,} und")
+                res_col3.metric("Punto de Equilibrio (Ventas)", f"${resultado['punto_equilibrio_ventas']:,.2f}")
+
+                # 5. Guardar en el histórico de resultados (Mochila del Session State)
+                nuevo_registro = {
+                    "Función": "Punto Equilibrio",
+                    "Costos Fijos ($)": costos_fijos,
+                    "Precio Unitario ($)": precio_unitario,
+                    "Costo Var. Unitario ($)": costo_variable_unitario,
+                    "Margen Contribución ($)": resultado['margen_contribucion_unitario'],
+                    "PE Unidades": resultado['punto_equilibrio_unidades'],
+                    "PE Ventas ($)": resultado['punto_equilibrio_ventas']
+                }
+                st.session_state.historico_ej3.append(nuevo_registro)
+
+            except Exception as e:
+                st.error(f"🚨 Error al ejecutar la librería externa: {e}")
+
+    st.markdown("---")
+    st.markdown("### 📋 Tabla Histórica de Resultados (DataFrame)")
+
+    # 6. Mostrar tabla histórica recopilada
+    if len(st.session_state.historico_ej3) > 0:
+        df_historico = pd.DataFrame(st.session_state.historico_ej3)
+        st.dataframe(df_historico, use_container_width=True)
+        
+        # Pequeño análisis extra de regalo con NumPy
+        pe_promedio = np.mean(df_historico["PE Unidades"])
+        st.light_trend = True # Indicador visual ficticio
+        st.info(f"ℹ️ El punto de equilibrio promedio de todas las simulaciones guardadas es de **{pe_promedio:,.2f} unidades**.")
+    else:
+        st.info("ℹ️ No se han ejecutado simulaciones en esta sesión. Completa los campos y presiona el botón.")
 
 # ==========================================
 # 5. EJERCICIO 4: CRUD de Clases
