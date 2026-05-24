@@ -298,7 +298,123 @@ elif opcion == "Ejercicio 3":
 # 5. EJERCICIO 4: CRUD de Clases
 # ==========================================
 elif opcion == "Ejercicio 4":
-    st.title("🧠 Ejercicio 4: Control de Clases con Sistema CRUD")
-    st.write("Conecta aquí la clase elegida de tu archivo `librería_clases_proyecto1.py` para aplicar Crear, Leer, Actualizar y Eliminar.")
-    
-    # TODO: Aquí programaremos las pestañas (tabs) para hacer el Crear, Leer, Actualizar y Borrar.
+    st.title("🏥 Ejercicio 4: Gestión Clases y Objetos (CRUD Médico)")
+    st.markdown("""
+    *Descripción:* Sistema de gestión de registros médicos que implementa **Programación Orientada a Objetos (POO)**. 
+    Permite registrar instancias de la clase `Paciente`, almacenar los datos mediante un **Diccionario de Diccionarios** persistente, 
+    y realizar operaciones CRUD en tiempo real.
+    """)
+
+    # Inicializar el contenedor de diccionario de diccionarios si no existe
+    if "pacientes_ej4" not in st.session_state:
+        st.session_state.pacientes_ej4 = {}
+
+    # Menu interno para el CRUD utilizando pestañas (Tabs)
+    tab_crear, tab_leer, tab_actualizar, tab_eliminar = st.tabs([
+        "➕ Registrar Paciente", "📋 Ver Fichas Médicas", "🔄 Actualizar Datos", "❌ Eliminar Registro"
+    ])
+
+    # ----------------------------------------------------
+    # TAB 1: CREAR (CREATE)
+    # ----------------------------------------------------
+    with tab_crear:
+        st.markdown("### 📝 Formulario de Registro de Pacientes")
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            pac_nombre = st.text_input("Nombre del Paciente:", key="pac_nom_c").strip()
+        with c2:
+            pac_peso = st.number_input("Peso Actual (kg):", min_value=1.0, value=70.0, step=0.5, format="%.1f")
+        with c3:
+            pac_altura = st.number_input("Estatura (m):", min_value=0.5, value=1.70, step=0.01, format="%.2f")
+
+        if st.button("Guardar en Base de Datos", key="btn_crear_pac"):
+            if pac_nombre == "":
+                st.warning("⚠️ El nombre del paciente no puede quedar vacío.")
+            elif pac_nombre in st.session_state.pacientes_ej4:
+                st.error("❌ Este paciente ya se encuentra registrado. Usa la pestaña 'Actualizar'.")
+            else:
+                try:
+                    # Instanciamos la clase externa importada
+                    # NOTA: Asegúrate que tu clase se cargue desde 'libreria_clases_proyecto1'
+                    nuevo_paciente = clases.Paciente(nombre=pac_nombre, peso_kg=pac_peso, altura_m=pac_altura)
+                    
+                    # 🔑 APLICAMOS DICCIONARIO DE DICCIONARIOS
+                    # Guardamos tanto el objeto vivo (para métodos) como su resumen plano
+                    st.session_state.pacientes_ej4[pac_nombre] = {
+                        "objeto": nuevo_paciente,
+                        "resumen": nuevo_paciente.resumen()
+                    }
+                    st.success(f"✅ ¡Paciente '{pac_nombre}' registrado con éxito mediante POO!")
+                except Exception as e:
+                    st.error(f"🚨 Error en los parámetros de la clase: {e}")
+
+    # ----------------------------------------------------
+    # TAB 2: LEER (READ)
+    # ----------------------------------------------------
+    with tab_leer:
+        st.markdown("### 📊 Historias Clínicas y Análisis de IMC")
+        
+        if len(st.session_state.pacientes_ej4) > 0:
+            # Reestructuramos el diccionario de diccionarios en una lista plana para Pandas
+            lista_plana = [info["resumen"] for info in st.session_state.pacientes_ej4.values()]
+            df_pacientes = pd.DataFrame(lista_plana)
+            
+            # Cambiar nombres de columnas para que se vea impecable
+            df_pacientes.columns = ["Paciente", "IMC", "Clasificación Diagnóstica", "Superficie Corporal (m²)"]
+            st.dataframe(df_pacientes, use_container_width=True)
+            
+            # Métrica Analítica extra con NumPy
+            total_evaluados = len(df_pacientes)
+            imc_promedio = np.mean(df_pacientes["IMC"])
+            
+            inf_c1, inf_c2 = st.columns(2)
+            inf_c1.metric("Total de Pacientes", f"{total_evaluados} registrados")
+            inf_c2.metric("Promedio de IMC Poblacional", f"{imc_promedio:.2f}")
+        else:
+            st.info("ℹ️ No hay pacientes registrados en el sistema de clínicas todavía.")
+
+    # ----------------------------------------------------
+    # TAB 3: ACTUALIZAR (UPDATE)
+    # ----------------------------------------------------
+    with tab_actualizar:
+        st.markdown("### 🔄 Modificación de Constantes Médicas")
+        if len(st.session_state.pacientes_ej4) > 0:
+            # Selector inteligente basado en las llaves del diccionario principal
+            pac_a_modificar = st.selectbox("Selecciona el paciente a actualizar:", list(st.session_state.pacientes_ej4.keys()))
+            
+            # Extraemos el objeto guardado en la estructura anidada
+            obj_actual = st.session_state.pacientes_ej4[pac_a_modificar]["objeto"]
+            
+            up_c1, up_c2 = st.columns(2)
+            with up_c1:
+                nuevo_peso = st.number_input("Modificar Peso (kg):", min_value=1.0, value=float(obj_actual.peso_kg), step=0.5, format="%.1f", key="up_p")
+            with up_c2:
+                nueva_altura = st.number_input("Modificar Estatura (m):", min_value=0.5, value=float(obj_actual.altura_m), step=0.01, format="%.2f", key="up_a")
+                
+            if st.button("Actualizar Historial", key="btn_update_pac"):
+                # Modificamos los atributos del objeto vivo directamente
+                obj_actual.peso_kg = nuevo_peso
+                obj_actual.altura_m = nueva_altura
+                
+                # Sincronizamos el diccionario anidado del resumen
+                st.session_state.pacientes_ej4[pac_a_modificar]["resumen"] = obj_actual.resumen()
+                st.success(f"🔄 Datos de '{pac_a_modificar}' actualizados correctamente en memoria RAM.")
+        else:
+            st.info("ℹ️ No hay registros disponibles para modificar.")
+
+    # ----------------------------------------------------
+    # TAB 4: ELIMINAR (DELETE)
+    # ----------------------------------------------------
+    with tab_eliminar:
+        st.markdown("### ❌ Alta Médica / Eliminación de Expediente")
+        if len(st.session_state.pacientes_ej4) > 0:
+            pac_a_eliminar = st.selectbox("Selecciona el paciente a dar de baja:", list(st.session_state.pacientes_ej4.keys()), key="sel_del")
+            
+            st.warning(f"⚠️ ¿Estás seguro de que deseas eliminar permanentemente el expediente de {pac_a_eliminar}?")
+            if st.button("Confirmar Eliminación Definitiva", key="btn_del_pac"):
+                # 🔑 OPERACIÓN DE DICCIONARIO: Borramos la llave principal de golpe
+                del st.session_state.pacientes_ej4[pac_a_eliminar]
+                st.success(f"🗑️ Expediente de '{pac_a_eliminar}' removido del sistema.")
+                st.rerun() # Fuerza la actualización de la pantalla
+        else:
+            st.info("ℹ️ No hay registros en el sistema para dar de baja.")
